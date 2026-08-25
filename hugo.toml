@@ -1,0 +1,63 @@
+# 这个配置文件可以配置主题和原生网站
+baseURL = 'http://localhost:1313/'  # 站点域名
+locale = 'zh-cn'                    # 网站语言
+title = 'Weihao Niu'       # 网站标题
+theme = 'stack'                    # 指定使用 Stack 主题
+defaultContentLanguage = "zh-cn"
+enableInlineShortcodes = true
+enableRobotsTXT = true               # 启用 robots.txt
+enableGitInfo = true                 # 拿取git提交时间信息作为最终修改时间
+
+# 分页配置
+paginate = 10                        # 首页/分类页每页显示文章数量
+
+# Stack 主题专属配置 [params]
+[params]
+    # 站点描述（用于 SEO）
+    description = "一个基于 Hugo Stack 主题搭建的个人博客"
+    # 作者信息
+    author = "牛伟豪"
+    # 站点关键词（逗号分隔）
+    keywords = ["牛伟豪", "博客", "分享", "Hugo", "Stack"]
+    # 必要，指定主页显示的是content内的哪些内容
+    mainSections = ["about","blog"]
+    # 设置主题favicon
+    favicon = '/favicon.ico'
+    # 设置日期显示格式，2006-01-02 15:04:05（对应 Y m d H M S）是固定的助记符
+    [params.dateFormat]
+        published = "2006-01-02 15:04"
+        lastUpdated = "2006-01-02 15:04"
+    [params.footer]
+        since = 2023
+        customText = "Weihao Niu 保留所有权利"
+    # 文章相关
+    [params.article]                   
+          toc = true                     # 是否默认显示目录
+          math = true                    # 是否解析数学latex
+          license.enabled = false        # 文章版权信息
+    # 配置主题的小部件
+    [params.widgets]
+        homepage = [
+            { type = "search" },
+            { type = "archives", params = { limit = 5 } },
+            { type = "categories", params = { limit = 10 } },
+            { type = "tag-cloud", params = { limit = 10 } },
+        ]
+        page = [{ type = "toc" }]
+
+# 菜单页面配置
+[menu]
+    main = [
+        {name = "主页", weight = -100, url = "/", params = {icon = "home"}},
+        {name = "博客", weight = -90, url = "/blog", params = {icon = "blog"}},
+        {name = "关于", weight = -80, url = "/about", params = {icon = "user"}},
+    ]
+
+# Markdown 配置
+[markup]
+  # 代码高亮配置
+  [markup.highlight]
+    style = 'github'
+    lineNos = true
+    lineNumbersInTable = false
+    noClasses = false

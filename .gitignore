@@ -1,0 +1,7 @@
+# Hugo 构建产物                                                                                                        public/                                                                                                                resources/                                                                                                             .hugo_build.lock                                                                                                                                                                                                                              # Hugo 可执行(避免每次提交都变)                                                                                      
+public/
+resources/
+.hugo_build.lock
+
+# 可执行Hugo
+hugo.exe
