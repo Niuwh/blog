@@ -1,6 +1,7 @@
 +++
 date = '2026-08-24T15:18:15+08:00'
-draft = true
+lastmod = '2026-08-25T15:18:15+08:00'
+draft = true    
 title = '探索hugo博客搭建'
 description = "这里补充页面的描述，用于搜索引擎优化"
 keywords = ["Hugo","教程"]

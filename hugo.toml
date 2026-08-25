@@ -1,12 +1,15 @@
 # 这个配置文件可以配置主题和原生网站
 baseURL = 'http://localhost:1313/'  # 站点域名
 locale = 'zh-cn'                    # 网站语言
-title = 'Weihao Niu'       # 网站标题
-theme = 'stack'                    # 指定使用 Stack 主题
-defaultContentLanguage = "zh-cn"
+title = 'Weihao Niu'                # 网站标题
+theme = 'stack'                     # 指定使用 Stack 主题
+defaultContentLanguage = "zh"       # 这里指定默认的网页语言，用于读取i18n的对应语言文件做匹配，要求与文件名对应
 enableInlineShortcodes = true
 enableRobotsTXT = true               # 启用 robots.txt
-enableGitInfo = true                 # 拿取git提交时间信息作为最终修改时间
+
+enableGitInfo = true                # # 启用 Git 信息功能
+[frontmatter]
+    lastmod = ["git","lastmod","date"]
 
 # 分页配置
 paginate = 10                        # 首页/分类页每页显示文章数量
@@ -35,6 +38,7 @@ paginate = 10                        # 首页/分类页每页显示文章数量
           toc = true                     # 是否默认显示目录
           math = true                    # 是否解析数学latex
           license.enabled = false        # 文章版权信息
+          readingTime = true             # 显示阅读时长
     # 配置主题的小部件
     [params.widgets]
         homepage = [
