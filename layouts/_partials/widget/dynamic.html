@@ -1,0 +1,25 @@
+{{- $context := .Context -}}
+{{- $params := .Params -}}
+{{- $limit := default 5 $params.limit -}}
+{{- if ne $context.Section "dynamic" -}}
+    {{- $section := $context.Site.GetPage "section" "dynamic" -}}
+    {{- if $section -}}
+        {{- $pages := first $limit (where $section.Pages "Draft" "ne" true) -}}
+        {{- if gt (len $pages) 0 -}}
+        <section class="widget dynamic">
+            <div class="widget-icon">{{ partial "helper/icon" "messages" }}</div>
+            <h2 class="widget-title section-title">动态</h2>
+            <ul class="widget-dynamic--list">
+                {{- range $pages -}}
+                <li class="widget-dynamic--item">
+                    <a href="{{ .Permalink }}" title="{{ .Title }}">
+                        <span class="widget-dynamic--title">{{ .Title }}</span>
+                        <time class="widget-dynamic--date">{{ .Date | time.Format "2006-01-02" }}</time>
+                    </a>
+                </li>
+                {{- end -}}
+            </ul>
+        </section>
+        {{- end -}}
+    {{- end -}}
+{{- end -}}

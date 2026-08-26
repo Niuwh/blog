@@ -43,17 +43,22 @@ paginate = 10                        # 首页/分类页每页显示文章数量
     # 配置主题的小部件
     [params.widgets]
         homepage = [
+            { type = "dynamic", params = { limit = 5 } },
             { type = "archives", params = { limit = 5 } },
             { type = "categories", params = { limit = 10 } },
             { type = "tag-cloud", params = { limit = 10 } },
         ]
-        page = [{ type = "toc" }]
+        page = [
+            { type = "dynamic", params = { limit = 5 } },
+            { type = "toc" }
+        ]
 
 # 菜单页面配置
 [menu]
     main = [
         {name = "主页", weight = -100, url = "/", params = {icon = "home"}},
         {name = "博客", weight = -90, url = "/blog", params = {icon = "blog"}},
+        {name = "动态", weight = -85, url = "/dynamic", params = {icon = "messages"}},
         {name = "关于", weight = -80, url = "/about", params = {icon = "user"}},
     ]
 

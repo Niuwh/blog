@@ -40,6 +40,9 @@ linktitle: "关于我"
 ### 🛠️ 为什么使用Hugo
 这个博客是用hugo搭建的，主要看重的是它的本地化使用`md`格式直接写文章然后转为`html`的方式，便于我备份这些珍贵的资料，因为就在2026/8/21这一天，我再一次把我的博客清空了，当时用的是halo-plus博客系统，让我明白了一个道理，数据才是最重要的。然后我决定转到hugo来。
 
+## 我的作品
+- 雨课堂刷课脚本：[https://github.com/Niuwh/yuketang-jiaoben](https://github.com/Niuwh)
+
 ## 🚧 最近在折腾什么？
 
 - Hugo + Stack 搭博客

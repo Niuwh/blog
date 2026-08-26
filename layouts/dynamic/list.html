@@ -1,0 +1,15 @@
+{{ define "main" }}
+<header class="page-header">
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p class="page-description">{{ . }}</p>{{ end }}
+</header>
+{{ $pages := where .Pages "Draft" "ne" true }}
+{{ $paginator := .Paginate $pages }}
+<section class="article-list--compact">
+    {{ range $paginator.Pages }}
+    {{ partial "article-list/compact" . }}
+    {{ end }}
+</section>
+{{- partial "pagination.html" . -}}
+{{ end }}
+{{ define "right-sidebar" }}{{ end }}
