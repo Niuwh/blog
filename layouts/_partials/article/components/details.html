@@ -22,9 +22,14 @@
             </a>
         </h2>
 
-        {{ with $Page.Params.description }}
+        <!-- 这里对副标题摘要做了变更，可以用户决定是否展示 -->
+        {{/* 列表页副标题摘要：全局开关 + 单篇覆盖 */}}
+        {{ $globalShowSubtitle := $Page.Site.Params.article.showListSubtitle | default false }}
+        {{ $enableSubtitle := $Page.Params.list_subtitle | default $globalShowSubtitle }}
+
+        {{ if and $enableSubtitle $Page.Params.description }}
         <h3 class="article-subtitle">
-            {{ . }}
+            {{ $Page.Params.description }}
         </h3>
         {{ end }}
     </div>
