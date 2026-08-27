@@ -1,7 +1,7 @@
 # 这个配置文件可以配置主题和原生网站
 baseURL = 'http://localhost:1313/'  # 站点域名
 locale = 'zh-cn'                    # 网站语言
-title = 'Niu Weihao Blog'                # 网站标题
+title = 'Niu Weihao Blog'           # 网站标题
 theme = 'stack'                     # 指定使用 Stack 主题
 defaultContentLanguage = "zh"       # 这里指定默认的网页语言，用于读取i18n的对应语言文件做匹配，要求与文件名对应
 enableInlineShortcodes = true

@@ -1,7 +1,7 @@
 +++
 date = '{{ .Date }}'
 lastmod = '{{ .Date }}'
-draft = true
+draft = false
 title = '{{ replace .File.ContentBaseName "-" " " | title }}'
 keywords = ["页面的关键词，用于搜索引擎优化"]
 linktitle = "页面在链接中的显示标题"
