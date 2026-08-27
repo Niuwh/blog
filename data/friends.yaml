@@ -1,0 +1,27 @@
+# 友链数据。每条记录会渲染成 /friends/ 页一张卡片。
+#
+# 字段说明：
+#   name        友站名，必填
+#   url         友站完整链接，必填
+#   avatar      头像图片 URL，可选；留空则回退到首字母方块占位
+#   description 一句话描述，必填；卡片里的简介
+#   weight      排序权重，可选；越小越靠前，未填则默认 0
+#
+# 用 weight 来控制顺序比"按字母"或"按添加时间"都更稳定——
+# 你随时可以把感兴趣的友站提到前面，不影响其它记录的位置。
+- name: Hugo Stack 主题
+  url: https://github.com/CaiJimmy/hugo-theme-stack
+  avatar: https://avatars.githubusercontent.com/u/84102221
+  description: 本博客正在使用的主题，作者是 Jimmy Cai。功能完整、UI 简洁，配色和卡片样式都偏静态化阅读体验。
+  weight: 1
+
+- name: Hugo 中文文档
+  url: https://www.gohugo.io/
+  avatar: https://www.gohugo.io/favicon-32x32.png
+  description: Hugo 官方网站与文档。本站的搭建基础，遇到问题时第一手参考来源。
+  weight: 2
+
+- name: Niuwh 笔记（占位）
+  url: /
+  description: 你自己的主页，互链示例。可改成真实交换友链的友站。
+  weight: 99

@@ -59,6 +59,7 @@ paginate = 10                        # 首页/分类页每页显示文章数量
         {name = "主页", weight = -100, url = "/", params = {icon = "home"}},
         {name = "博客", weight = -90, url = "/blog", params = {icon = "blog"}},
         {name = "动态", weight = -85, url = "/dynamic", params = {icon = "messages"}},
+        {name = "友链", weight = -82, url = "/friends", params = {icon = "link"}},
         {name = "关于", weight = -80, url = "/about", params = {icon = "user"}},
     ]
 
@@ -70,3 +71,22 @@ paginate = 10                        # 首页/分类页每页显示文章数量
     lineNos = true
     lineNumbersInTable = false
     noClasses = false
+
+# 评论配置（Stack 主题读的是 .Site.Params.comments.*，必须放在 [params] 下）
+[params.comments]
+    enabled  = true
+    provider = "giscus"
+    [params.comments.giscus]
+        repo             = "Niuwh/blog"
+        repoID           = "R_kgDOUDR0gQ"
+        category         = "Announcements"
+        categoryID       = "DIC_kwDOUDR0gc4DETEh"
+        mapping          = "title"
+        lightTheme       = "light"
+        darkTheme        = "dark_dimmed"
+        reactionsEnabled = 1
+        emitMetadata     = 0
+        inputPosition    = "top"
+        lang             = "zh-CN"
+        strict           = 0
+        loading          = "lazy"

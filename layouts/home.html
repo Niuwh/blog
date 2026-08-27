@@ -1,0 +1,154 @@
+{{ define "body-class" }}
+article-page
+{{/*
+与主题 home.html 完全一致：决定侧栏是否显示、TOC 是否启用。
+Scope 在 right-sidebar 块里硬编码为 "homepage"，所以 hugo.toml 里的
+[params.widgets.homepage] 数组（dynamic / archives / categories / tag-cloud）会在这里生效。
+*/}}
+{{- $HasWidgetNotTOC := false -}}
+{{- $TOCWidgetEnabled := false -}}
+{{- range .Site.Params.widgets.homepage -}}
+{{- if ne .type "toc" -}}
+{{ $HasWidgetNotTOC = true -}}
+{{- else -}}
+{{ $TOCWidgetEnabled = true -}}
+{{- end -}}
+{{- end -}}
+
+{{- $TOCEnabled := and (default .Site.Params.article.toc .Params.toc) $TOCWidgetEnabled -}}
+{{- $hasTOC := ge (len .TableOfContents) 100 -}}
+{{- .Scratch.Set "TOCEnabled" (and $TOCEnabled $hasTOC) -}}
+
+{{- .Scratch.Set "hasWidget" (or $HasWidgetNotTOC (and $TOCEnabled $hasTOC)) -}}
+{{ end }}
+
+{{ define "main" }}
+
+{{/*
+Hero：欢迎大卡 + 三联子卡（自述/方向/社交）。
+.home-hero 与 .home-hero--triad 的样式见 assets/scss/custom.scss。
+三联卡的字段在 content/_index.md 的 [hero] 块里配置，整组可选；缺哪个就少一张卡。
+*/}}
+<section class="home-hero section-card">
+    <div class="section-details home-hero--head">
+        <h3 class="section-count">{{ T "home.heroTag" }}</h3>
+        <h1 class="section-term">{{ .Title }}</h1>
+        {{- with .Content }}
+        <div class="section-description article-content home-hero--intro">
+            {{ . }}
+        </div>
+        {{- end }}
+    </div>
+
+    {{- with .Params.hero }}
+    <div class="home-hero--triad">
+        {{- with .intro }}
+        <div class="home-hero-card">
+            <div class="home-hero-card--icon">{{ partial "helper/icon" "user" }}</div>
+            <h3 class="home-hero-card--title">{{ T "home.selfIntro" }}</h3>
+            <p class="home-hero-card--body">{{ . }}</p>
+        </div>
+        {{- end }}
+
+        {{- with .focus }}
+        <div class="home-hero-card">
+            <div class="home-hero-card--icon">{{ partial "helper/icon" "blog" }}</div>
+            <h3 class="home-hero-card--title">{{ T "home.focus" }}</h3>
+            <ul class="home-hero-card--list">
+                {{- range . }}
+                <li>{{ . }}</li>
+                {{- end }}
+            </ul>
+        </div>
+        {{- end }}
+
+        {{- with .links }}
+        <div class="home-hero-card">
+            <div class="home-hero-card--icon">{{ partial "helper/icon" "link" }}</div>
+            <h3 class="home-hero-card--title">{{ T "home.social" }}</h3>
+            <ul class="home-hero-card--links">
+                {{- range . }}
+                <li>
+                    {{- /*
+                    占位链接（mailto: 空 / 没有 scheme）跳过点击，给个禁用样式作视觉提示，
+                    而不是渲染成死链让人以为能点。
+                    */ -}}
+                    <!-- {{- $isPlaceholder := or (eq .url "") (eq .url "mailto:") (not .url) -}} -->
+                    <a href="{{ .url }}" {{ if $isPlaceholder }} class="home-hero-card--placeholder" {{ end }}>
+                        {{- if .icon -}}{{ partial "helper/icon" .icon }}{{- end -}}
+                        <span>{{ .name }}</span>
+                    </a>
+                </li>
+                {{- end }}
+            </ul>
+        </div>
+        {{- end }}
+    </div>
+    {{- end }}
+</section>
+
+{{/*
+最新动态：直接复用 .dynamic-card 的视觉风格做一个紧凑流。
+这里不用 .dynamic-timeline，因为首页只展示 5 条，全套时间轴会显得过重。
+*/}}
+{{- $dynSection := .Site.GetPage "section" "dynamic" -}}
+{{- if $dynSection }}
+{{- $dynPages := first 5 (where $dynSection.RegularPagesRecursive "Draft" "ne" true) -}}
+{{- if gt (len $dynPages) 0 }}
+<section class="home-section">
+    <header class="home-section--header section-card">
+        <div class="section-details">
+            <h3 class="section-count">{{ T "home.sectionTag" }}</h3>
+            <h2 class="section-term">{{ T "home.latestDynamic" }}</h2>
+        </div>
+        <a class="home-section--more" href="{{ $dynSection.RelPermalink }}">
+            <span>{{ T "home.viewAll" }}</span>{{ partial "helper/icon" "chevron-right" }}
+        </a>
+    </header>
+    <ol class="home-stream">
+        {{- range $dynPages }}
+        <li class="home-stream--item">
+            <time class="home-stream--date" datetime="{{ .Date.Format " 2006-01-02" }}">
+                {{- .Date | time.Format "01-02" -}}
+            </time>
+            <a class="home-stream--title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </li>
+        {{- end }}
+    </ol>
+</section>
+{{- end }}
+{{- end }}
+
+{{/*
+最新博客：直接用主题的 article-list/default 渲染 5 条，与 /blog/ 页一致。
+容器用主题的 .article-list（已含 gap / 列样式），不必自己另写。
+*/}}
+{{- $blogSection := .Site.GetPage "section" "blog" -}}
+{{- if $blogSection }}
+{{- $blogPages := first 5 (where $blogSection.RegularPages "Draft" "ne" true) -}}
+{{- if gt (len $blogPages) 0 }}
+<section class="home-section">
+    <header class="home-section--header section-card">
+        <div class="section-details">
+            <h3 class="section-count">{{ T "home.sectionTag" }}</h3>
+            <h2 class="section-term">{{ T "home.latestBlog" }}</h2>
+        </div>
+        <a class="home-section--more" href="{{ $blogSection.RelPermalink }}">
+            <span>{{ T "home.viewAll" }}</span>{{ partial "helper/icon" "chevron-right" }}
+        </a>
+    </header>
+    <section class="article-list">
+        {{- range $blogPages }}
+        {{ partial "article-list/default" . }}
+        {{- end }}
+    </section>
+</section>
+{{- end }}
+{{- end }}
+
+{{ partialCached "footer/footer" . }}
+{{ end }}
+
+{{ define "right-sidebar" }}
+{{ if .Scratch.Get "hasWidget" }}{{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}{{ end}}
+{{ end }}

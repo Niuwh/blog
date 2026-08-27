@@ -1,16 +1,47 @@
+{{ define "body-class" }}article-page{{ end }}
+
 {{ define "main" }}
-<article class="page single">
-    <header class="page-header">
-        <h1 class="single-title">{{ .Title }}</h1>
-        <div class="post-meta">
-            <time datetime="{{ .Date | time.Format " 2006-01-02T15:04:05Z07:00" }}">
-                📅发布日期： {{ .Date | time.Format "2006-01-02 15:04" }}
-            </time>
+<article class="main-article dynamic-single">
+    <header class="article-header">
+        <div class="article-details">
+            <h1 class="article-title">{{ .Title }}</h1>
+
+            <footer class="article-meta">
+                <div class="inline-meta">
+                    {{ partial "helper/icon" "date" }}
+                    <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+                        {{- .Date | time.Format .Site.Params.dateFormat.published -}}
+                    </time>
+
+                    {{- if ne .Lastmod .Date }}
+                    {{ partial "helper/icon" "new" }}
+                    <time datetime="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">
+                        {{ T "article.lastUpdatedOn" }} {{ .Lastmod | time.Format .Site.Params.dateFormat.lastUpdated }}
+                    </time>
+                    {{- end }}
+                </div>
+            </footer>
         </div>
     </header>
-    <div class="page-content">
-        {{ .Content }}
-    </div>
+
+    {{- with .Content }}
+    <section class="article-content">
+        {{ . }}
+    </section>
+    {{- end }}
+
+    <footer class="article-footer dynamic-single--footer">
+        <a class="dynamic-back" href="{{ .CurrentSection.RelPermalink }}">
+            {{ partial "helper/icon" "arrow-back" }}<span>{{ T "dynamic.back" }}</span>
+        </a>
+    </footer>
 </article>
+
+{{- if not (eq .Params.comments false) }}
+{{ partial "comments/include" . }}
+{{- end }}
+
+{{ partialCached "footer/footer" . }}
 {{ end }}
+
 {{ define "right-sidebar" }}{{ end }}

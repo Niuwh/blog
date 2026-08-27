@@ -1,0 +1,1008 @@
+/*
+*   项目自定义样式。由 themes/stack/assets/scss/style.scss 末尾的 @import "custom.scss" 引入，
+*   项目 assets/ 覆盖主题同名文件，因此不需要改任何 head 模板。
+*   编译器是 libsass，不要用 @use / math.div 等 dart-sass 专属语法。
+*/
+
+/* ==========================================================================
+   动态 · 列表页页头
+   ========================================================================== */
+
+.dynamic-header {
+    .dynamic-header--icon {
+        flex-shrink: 0;
+
+        svg {
+            width: 40px;
+            height: 40px;
+            stroke-width: 1.4;
+            color: var(--card-text-color-tertiary);
+            opacity: 0.45;
+        }
+    }
+}
+
+/* ==========================================================================
+   动态 · 时间轴
+   ========================================================================== */
+
+.dynamic-timeline {
+    --dynamic-rail: 44px;
+    --dynamic-dot: 11px;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-separation);
+
+    @include respond(md) {
+        --dynamic-rail: 56px;
+    }
+}
+
+.dynamic-year--label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin: 0 0 var(--spacing-lg) 0;
+
+    span {
+        @include card-style;
+        border-radius: 999px;
+        padding: 4px 14px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: var(--card-text-color-main);
+    }
+
+    /* 年份右侧延伸出的细线 */
+    &::after {
+        content: "";
+        flex: 1;
+        height: 1.5px;
+        background-color: var(--card-separator-color);
+    }
+}
+
+.dynamic-list {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+
+    /* 贯穿的竖线，两端淡出，避免生硬的截断 */
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(var(--dynamic-rail) / 2);
+        width: 2px;
+        margin-left: -1px;
+        background: linear-gradient(
+            to bottom,
+            transparent 0,
+            var(--card-separator-color) 22px,
+            var(--card-separator-color) calc(100% - 56px),
+            transparent 100%
+        );
+    }
+}
+
+.dynamic-item {
+    /*
+        --card-padding 定义在 item 上而不是 card 上，好让 .dynamic-node 也能读到它，
+        从而把圆点的垂直位置跟卡片内边距绑定，换断点时不用再调魔数。
+        .article-content 自带 padding: 0 var(--card-padding)，并且它的 h1-h6 用
+        margin-inline-start: calc(var(--card-padding) * -1) 做左侧强调条 —— 所以卡片自身
+        只能有纵向 padding，横向 padding 一律交给子元素，否则双重内边距 + 强调条错位。
+    */
+    --card-padding: 18px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+
+    @include respond(md) {
+        --card-padding: 22px;
+        gap: var(--spacing-md);
+    }
+}
+
+.dynamic-node {
+    flex-shrink: 0;
+    width: var(--dynamic-rail);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* 对齐到卡片标题首行的大致中线 */
+    padding-top: calc(var(--card-padding) + 0.6em);
+
+    /* 时间轴节点圆点：外圈用页面底色，把竖线“咬断” */
+    &::before {
+        content: "";
+        width: var(--dynamic-dot);
+        height: var(--dynamic-dot);
+        border-radius: 50%;
+        background-color: var(--accent-color);
+        box-shadow: 0 0 0 4px var(--body-background);
+        position: relative;
+        z-index: 1;
+    }
+}
+
+.dynamic-node--date {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    color: var(--card-text-color-tertiary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+
+    @include respond(md) {
+        font-size: 1.3rem;
+    }
+}
+
+/* ==========================================================================
+   动态 · 卡片
+   ========================================================================== */
+
+.dynamic-card {
+    @include card-style;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: var(--card-padding) 0;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+        box-shadow: var(--shadow-l2);
+    }
+}
+
+.dynamic-card--title {
+    margin: 0;
+    padding: 0 var(--card-padding);
+    font-family: var(--article-font-family);
+    font-size: 1.7rem;
+    font-weight: 600;
+    line-height: 1.4;
+
+    a {
+        color: var(--card-text-color-main);
+
+        &:hover {
+            opacity: 0.75;
+        }
+    }
+
+    @include respond(md) {
+        font-size: 1.9rem;
+    }
+}
+
+.dynamic-card--content {
+    position: relative;
+    margin-top: var(--spacing-md);
+
+    /*
+        主题的 .article-content 段落颜色写在 .article-page .main-article .article-content 之下
+        （partials/layout/article.scss:32-44），动态列表页 body 没有 article-page，
+        这里也没有 .main-article 包裹，所以默认会取 body 的颜色 —— body 又没设 color，
+        UA 默认是黑色，暗色模式背景变深后黑字直接看不见。手动加一句跟随主题语义：
+        段落用 secondary、链接用主题 accent、粗体用 main。
+    */
+    color: var(--card-text-color-secondary);
+
+    p,
+    li {
+        color: var(--card-text-color-secondary);
+    }
+
+    strong,
+    b {
+        color: var(--card-text-color-main);
+    }
+
+    a {
+        color: var(--accent-color);
+
+        &:hover {
+            color: var(--accent-color-darker);
+        }
+    }
+
+    /* 抵消 .article-content > p { margin: 1.5em 0 } 在短动态上撑出的大空隙 */
+    > :first-child {
+        margin-top: 0;
+    }
+
+    > :last-child {
+        margin-bottom: 0;
+    }
+
+    /*
+        主题的 img { max-width: 100% } 嵌在 .article-page .main-article .article-content 之下
+        （layout/article.scss:40），列表页没有这两层祖先，所以必须在这里自己兜住，
+        否则图片会按原始像素尺寸铺开、直接撑破卡片。
+        max-height 是为了让竖长截图不至于把单张卡片顶得特别高 —— 详情页不设这个上限，
+        点进去要能看完整图。
+    */
+    img {
+        max-width: 100%;
+        max-height: 460px;
+        width: auto;
+        height: auto;
+        border-radius: calc(var(--card-border-radius) / 2);
+    }
+}
+
+.dynamic-card--meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    /* 卡片没有横向 padding，所以这条分隔线是通栏的 */
+    margin: var(--spacing-md) 0 0;
+    padding: var(--spacing-md) var(--card-padding) 0;
+    border-top: 1.5px solid var(--card-separator-color);
+
+    time {
+        font-size: 1.3rem;
+        color: var(--card-text-color-tertiary);
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.dynamic-card--more {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 1.3rem;
+    color: var(--accent-color);
+
+    svg {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+    }
+
+    &:hover {
+        color: var(--accent-color-darker);
+    }
+}
+
+/* ==========================================================================
+   动态 · 长文折叠（纯 CSS，长文判定在构建期完成）
+   ========================================================================== */
+
+/* 用 opacity 而不是 hidden 隐藏 checkbox，这样键盘还能聚焦到它 */
+.dynamic-fold {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dynamic-item--long {
+    .dynamic-card--content {
+        max-height: 13em;
+        overflow: hidden;
+
+        /* 渐变遮罩用 var(--card-background)，暗色模式自动跟随 */
+        &::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 5em;
+            pointer-events: none;
+            background: linear-gradient(to bottom, transparent, var(--card-background));
+            transition: opacity 0.25s ease;
+        }
+    }
+}
+
+.dynamic-fold--btn {
+    align-self: flex-start;
+    margin: var(--spacing-sm) var(--card-padding) 0;
+    padding: 4px 12px;
+    border-radius: var(--tag-border-radius);
+    font-size: 1.3rem;
+    color: var(--accent-color);
+    background-color: var(--card-background-selected);
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+        opacity: 0.75;
+    }
+
+    .is-less {
+        display: none;
+    }
+}
+
+.dynamic-fold:checked {
+    ~ .dynamic-card--content {
+        max-height: none;
+
+        &::after {
+            opacity: 0;
+        }
+    }
+
+    ~ .dynamic-fold--btn {
+        .is-more {
+            display: none;
+        }
+
+        .is-less {
+            display: inline;
+        }
+    }
+}
+
+.dynamic-fold:focus-visible ~ .dynamic-fold--btn {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   动态 · 空状态
+   ========================================================================== */
+
+.dynamic-empty {
+    @include card-style;
+    padding: var(--card-padding);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--card-text-color-tertiary);
+
+    svg {
+        width: 40px;
+        height: 40px;
+        stroke-width: 1.4;
+        opacity: 0.5;
+    }
+
+    p {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+}
+
+/* ==========================================================================
+   动态 · 详情页（结构复用主题的 .main-article / .article-content）
+   ========================================================================== */
+
+.dynamic-single {
+    .article-title {
+        margin: 0;
+        font-size: 2.6rem;
+
+        @include respond(md) {
+            font-size: 3rem;
+        }
+    }
+}
+
+.dynamic-back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.4rem;
+    color: var(--card-text-color-secondary);
+
+    svg {
+        width: 18px;
+        height: 18px;
+        stroke-width: 1.8;
+    }
+
+    &:hover {
+        color: var(--accent-color);
+    }
+}
+
+/* ==========================================================================
+   主页 · Hero（欢迎 + 三联子卡：自述/方向/社交）
+   ==========================================================================
+   用 themes/.../list.scss 已有的 .section-card 做"大卡"基底，
+   flex 方向被覆盖成 column，让头和 triad 上下堆叠，
+   再让 triad 内部切成 3 列网格（mobile 上自动单列）。
+*/
+
+.home-hero {
+    /* 覆盖 .section-card 的 flex 方向：这里是"上下两段"，不是原来的"图标在右" */
+    flex-direction: column;
+    align-items: stretch;
+    /* .section-card 自带 gap: var(--spacing-lg)，正好给头和 triad 之间留呼吸感 */
+}
+
+.home-hero--head {
+    .section-term {
+        /* 主页标题比其它 section 更大 */
+        font-size: 2.6rem;
+
+        @include respond(md) {
+            font-size: 3.2rem;
+        }
+    }
+
+    .section-description {
+        font-weight: normal;
+    }
+
+    .home-hero--intro {
+        margin-top: 4px;
+        line-height: 1.7;
+
+        > :first-child {
+            margin-top: 0;
+        }
+
+        > :last-child {
+            margin-bottom: 0;
+        }
+
+        p {
+            font-size: 1.55rem;
+            color: var(--card-text-color-secondary);
+        }
+    }
+}
+
+.home-hero--triad {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+    /* 大卡本身已有 padding，三联里的子卡不需要再被外层卡片压紧，
+       把内 padding 收紧一点让子卡视觉更通透 */
+    margin-top: var(--spacing-xs);
+
+    @include respond(md) {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-lg);
+    }
+}
+
+.home-hero-card {
+    /* 深一档的背景色给"嵌套卡片"做视觉层次，避免和大卡底色混在一起 */
+    background-color: var(--card-background-selected);
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: var(--card-background-hover, var(--card-background));
+    }
+}
+
+.home-hero-card--icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        width: 22px;
+        height: 22px;
+        stroke-width: 1.5;
+        color: var(--card-text-color-tertiary);
+        opacity: 0.7;
+    }
+}
+
+.home-hero-card--title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--card-text-color-tertiary);
+}
+
+.home-hero-card--body {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 1.65;
+    color: var(--card-text-color-secondary);
+}
+
+.home-hero-card--list {
+    margin: 0;
+    padding-left: 1.2em;
+    list-style: disc;
+
+    li {
+        font-size: 1.5rem;
+        line-height: 1.7;
+        color: var(--card-text-color-secondary);
+    }
+}
+
+.home-hero-card--links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--accent-color);
+        font-size: 1.45rem;
+        line-height: 1.5;
+
+        svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+            flex-shrink: 0;
+        }
+
+        &:hover {
+            color: var(--accent-color-darker);
+        }
+    }
+
+    /* 占位链接（mailto: 空 / 没填 url）用半透明 + 不可点，提示需要填 */
+    .home-hero-card--placeholder {
+        opacity: 0.45;
+        pointer-events: none;
+        cursor: default;
+
+        svg {
+            opacity: 0.6;
+        }
+    }
+}
+
+/* ==========================================================================
+   主页 · Section（最新动态 / 最新博客）
+   ==========================================================================
+   复用 .section-card 做小节标题卡，并在右侧加"查看全部 →"链接。
+   数据流：动态用紧凑的 .home-stream 单列表；博客直接用主题的 .article-list。
+*/
+
+.home-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.home-section--header {
+    /* 与动态列表里的页头共用 .section-card，无须重写背景和圆角 */
+    .section-term {
+        font-size: 2rem;
+
+        @include respond(md) {
+            font-size: 2.2rem;
+        }
+    }
+}
+
+.home-section--more {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 1.4rem;
+    color: var(--accent-color);
+    flex-shrink: 0;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+    }
+
+    &:hover {
+        color: var(--accent-color-darker);
+    }
+}
+
+/* 紧凑动态流：日期 + 标题 */
+.home-stream {
+    @include card-style;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* 内边距挂自己，卡片"全宽"，子项用 var(--card-padding) 对齐 */
+    --card-padding: 18px;
+
+    @include respond(md) {
+        --card-padding: 22px;
+    }
+}
+
+.home-stream--item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    padding: 12px var(--card-padding);
+
+    &:not(:last-child) {
+        border-bottom: 1.5px solid var(--card-separator-color);
+    }
+}
+
+.home-stream--date {
+    font-size: 1.3rem;
+    color: var(--card-text-color-tertiary);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+
+    @include respond(md) {
+        font-size: 1.4rem;
+    }
+}
+
+.home-stream--title {
+    font-size: 1.5rem;
+    color: var(--card-text-color-main);
+    line-height: 1.4;
+
+    &:hover {
+        color: var(--accent-color);
+    }
+}
+
+/* ==========================================================================
+   动态 · 侧边栏小组件（对齐主题 .widget.archives 的卡片列表模式）
+   ========================================================================== */
+
+.widget.dynamic {
+    .widget-dynamic--list {
+        @include card-style;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .widget-dynamic--item {
+        &:not(:last-child) {
+            border-bottom: 1.5px solid var(--card-separator-color);
+        }
+
+        a {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 14px 25px;
+
+            &:hover .widget-dynamic--title {
+                opacity: 0.75;
+            }
+        }
+    }
+
+    .widget-dynamic--title {
+        font-size: 1.4rem;
+        line-height: 1.4;
+        color: var(--card-text-color-main);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .widget-dynamic--date {
+        font-size: 1.2rem;
+        color: var(--card-text-color-tertiary);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .widget-dynamic--more .widget-dynamic--title {
+        color: var(--card-text-color-tertiary);
+        font-weight: bold;
+    }
+}
+
+/* ==========================================================================
+   友链 · /friends/
+   ==========================================================================
+   - 卡片继承 .dynamic-card 的视觉基底（背景、阴影、圆角、过渡）
+   - 网格用 auto-fill + minmax 自适应列数，移动端会自然塌成单列
+   - 头像区分有图与占位两态，分别用 --avatar-img / --avatar-fallback
+   - 申请说明卡复用 .section-card 以保持页头/说明两段视觉一致
+*/
+
+.friends-header {
+    .friends-header--icon {
+        flex-shrink: 0;
+
+        svg {
+            width: 40px;
+            height: 40px;
+            stroke-width: 1.4;
+            color: var(--card-text-color-tertiary);
+            opacity: 0.45;
+        }
+    }
+
+    .friends-header--intro {
+        line-height: 1.7;
+
+        > :first-child {
+            margin-top: 0;
+        }
+
+        > :last-child {
+            margin-bottom: 0;
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: var(--card-text-color-secondary);
+        }
+    }
+}
+
+.friends-empty {
+    @include card-style;
+    padding: var(--card-padding);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--card-text-color-tertiary);
+
+    svg {
+        width: 40px;
+        height: 40px;
+        stroke-width: 1.4;
+        opacity: 0.5;
+    }
+
+    p {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+}
+
+.friend-grid {
+    display: grid;
+    /* auto-fill 让列数随容器宽度变：宽桌面 3-4 列、窄屏 2 列、移动端 1 列 */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.friend-card {
+    @include card-style;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--card-padding);
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+        box-shadow: var(--shadow-l2);
+    }
+}
+
+/* 头像：两态。
+   -img：直接显示外链图，圆形遮罩用 border-radius + object-fit: cover。
+   -fallback：无图时显示首字（truncate 1 已在模板层面处理中英文）。
+   固定尺寸让 fallback 和 img 占位一致，不抖动。*/
+.friend-card--avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    margin-bottom: var(--spacing-xs);
+    flex-shrink: 0;
+
+    &-img {
+        object-fit: cover;
+        border: 2px solid var(--card-background-selected);
+        background-color: var(--card-background-selected);
+    }
+
+    &-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* 用主题色作背景，跟链接 accent 同色调，整页有色彩呼应 */
+        background-color: var(--accent-color);
+        color: var(--accent-color-text);
+        font-size: 2.2rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+}
+
+.friend-card--body {
+    /* 让 body 占据剩余空间，把 .friend-card--link 推到底部对齐 */
+    flex: 1;
+    min-width: 0;
+}
+
+.friend-card--name {
+    margin: 0 0 6px;
+    font-size: 1.7rem;
+    font-weight: 600;
+    line-height: 1.4;
+
+    a {
+        color: var(--card-text-color-main);
+
+        &:hover {
+            opacity: 0.75;
+        }
+    }
+}
+
+.friend-card--desc {
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1.6;
+    /* 二行截断：描述可能长短不一，统一两行视觉 */
+    color: var(--card-text-color-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.friend-card--link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: var(--spacing-xs);
+    font-size: 1.3rem;
+    color: var(--accent-color);
+
+    svg {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+    }
+
+    &:hover {
+        color: var(--accent-color-darker);
+    }
+}
+
+/* 申请友链说明卡 */
+.friend-apply {
+    margin-top: var(--section-separation);
+
+    .friend-apply--details {
+        gap: var(--spacing-md);
+    }
+
+    .friend-apply--intro {
+        margin: 0;
+        font-size: 1.5rem;
+        line-height: 1.7;
+        color: var(--card-text-color-secondary);
+    }
+}
+
+.friend-apply--contacts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md) var(--spacing-lg);
+}
+
+.friend-apply--contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.4rem;
+    color: var(--card-text-color-secondary);
+}
+
+.friend-apply--contact-icon {
+    display: inline-flex;
+    align-items: center;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+        color: var(--card-text-color-tertiary);
+    }
+}
+
+.friend-apply--contact-label {
+    color: var(--card-text-color-tertiary);
+    font-weight: 500;
+}
+
+.friend-apply--contact-value {
+    color: var(--accent-color);
+    word-break: break-all;
+
+    &:hover {
+        color: var(--accent-color-darker);
+    }
+}
+
+.friend-apply--requirements {
+    /* 浅一档背景，跟卡内其它元素做层次 */
+    background-color: var(--card-background-selected);
+    border-radius: var(--card-border-radius);
+    padding: var(--spacing-md) var(--card-padding);
+}
+
+.friend-apply--requirements-title {
+    margin: 0 0 var(--spacing-xs);
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--card-text-color-tertiary);
+}
+
+.friend-apply--requirements-list {
+    margin: 0;
+    padding-left: 1.4em;
+
+    li {
+        font-size: 1.4rem;
+        line-height: 1.7;
+        color: var(--card-text-color-secondary);
+    }
+}
+
+.friend-apply--footer {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--card-text-color-tertiary);
+    font-style: italic;
+}
+
+/* 申请友链 - 复制模板区 */
+.friend-apply--template {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.friend-apply--template-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--card-text-color-tertiary);
+}
+
+.friend-apply--template-intro {
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1.7;
+    color: var(--card-text-color-secondary);
+}
+
+/*
+    .article-content 自带 padding: 0 var(--card-padding)，让正文和卡片边缘有留白；
+    .highlight 用 margin-inline: calc(var(--card-padding) * -1) 把代码块"撑满到卡片边缘"——
+    这里的卡片边缘就是 .friend-apply--details 的内边距，正合需要。
+    再用 padding-bottom 给下方 footer 留呼吸位，免得贴在一起。
+*/
+.friend-apply--template-code {
+    padding-bottom: var(--card-padding);
+}

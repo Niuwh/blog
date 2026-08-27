@@ -4,11 +4,11 @@
 {{- if ne $context.Section "dynamic" -}}
     {{- $section := $context.Site.GetPage "section" "dynamic" -}}
     {{- if $section -}}
-        {{- $pages := first $limit (where $section.Pages "Draft" "ne" true) -}}
+        {{- $pages := first $limit (where $section.RegularPagesRecursive "Draft" "ne" true) -}}
         {{- if gt (len $pages) 0 -}}
         <section class="widget dynamic">
             <div class="widget-icon">{{ partial "helper/icon" "messages" }}</div>
-            <h2 class="widget-title section-title">动态</h2>
+            <h2 class="widget-title section-title">{{ T "dynamic.title" }}</h2>
             <ul class="widget-dynamic--list">
                 {{- range $pages -}}
                 <li class="widget-dynamic--item">
@@ -18,6 +18,11 @@
                     </a>
                 </li>
                 {{- end -}}
+                <li class="widget-dynamic--item widget-dynamic--more">
+                    <a href="{{ $section.RelPermalink }}">
+                        <span class="widget-dynamic--title">{{ T "dynamic.more" }}</span>
+                    </a>
+                </li>
             </ul>
         </section>
         {{- end -}}

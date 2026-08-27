@@ -1,0 +1,161 @@
+{{ define "body-class" }}article-page{{ end }}
+
+{{ define "main" }}
+
+{{/*
+    排序约定：
+      - primary key:   weight（升序），让博主控制排序
+      - secondary key: name  （升序），保证 weight 相同时字母序也稳定
+    `where .Site.Data.friends "url" "!=" nil` 把 url 缺失的脏数据过滤掉。
+*/}}
+{{- $friends := sort (where hugo.Data.friends "url" "!=" nil) "weight" "asc" "name" "asc" -}}
+
+<header class="section-card friends-header">
+    <div class="section-details">
+        <h3 class="section-count">{{ T "friends.tag" }}</h3>
+        <h1 class="section-term">{{ .Title }}</h1>
+        {{- with .Description }}
+        <h2 class="section-description">{{ . }}</h2>
+        {{- end }}
+        {{- with .Content }}
+        <div class="section-description article-content friends-header--intro">
+            {{ . }}
+        </div>
+        {{- end }}
+    </div>
+    <div class="friends-header--icon">{{ partial "helper/icon" "link" }}</div>
+</header>
+
+{{- if eq (len $friends) 0 }}
+<div class="friends-empty">
+    {{ partial "helper/icon" "link" }}
+    <p>{{ T "friends.empty" }}</p>
+</div>
+{{- else }}
+<div class="friend-grid">
+    {{- range $friends }}
+    <article class="friend-card">
+        {{- if .avatar }}
+        {{/*
+            .name 当 alt，对头像加载失败做可访问性兜底。
+            Hugo 处理外链图片没有 width/height（没有元数据可读），就不写这两个属性避免歧义。
+        */}}
+        <img class="friend-card--avatar friend-card--avatar-img"
+             src="{{ .avatar }}"
+             alt="{{ .name }}"
+             loading="lazy">
+        {{- else }}
+        {{- /*
+            没有头像时回退到首字占位。
+            truncate 1 "" 取第一 rune，中文（多字节）也能正确切；
+            不用 substr，substr 是字节级。
+        */}}
+        <div class="friend-card--avatar friend-card--avatar-fallback" aria-hidden="true">
+            {{ .name | strings.Trim " " | default "?" | truncate 1 "" | strings.FirstUpper }}
+        </div>
+        {{- end }}
+
+        <div class="friend-card--body">
+            <h3 class="friend-card--name">
+                <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" title="{{ .name }}">{{ .name }}</a>
+            </h3>
+            <p class="friend-card--desc">{{ .description }}</p>
+        </div>
+
+        <a class="friend-card--link"
+           href="{{ .url }}"
+           target="_blank"
+           rel="noopener noreferrer">
+            <span>{{ T "friends.visit" }}</span>{{ partial "helper/icon" "chevron-right" }}
+        </a>
+    </article>
+    {{- end }}
+</div>
+{{- end }}
+
+{{/*
+    申请友链说明卡：可选。
+    整个 [apply] 块配置见 content/friends/_index.md frontmatter。
+    只要 .Params.apply 存在就渲染，否则什么都不输出。
+*/}}
+{{- with .Params.apply }}
+<section class="friend-apply section-card">
+    <div class="section-details friend-apply--details">
+        <h3 class="section-count">{{ T "friends.applyTag" }}</h3>
+        <h2 class="section-term">{{ T "friends.applyTitle" }}</h2>
+
+        {{- with .intro }}
+        <p class="friend-apply--intro">{{ . }}</p>
+        {{- end }}
+
+        {{- with .contacts }}
+        <ul class="friend-apply--contacts">
+            {{- range . }}
+            <li class="friend-apply--contact">
+                {{- if .icon }}
+                <span class="friend-apply--contact-icon">{{ partial "helper/icon" .icon }}</span>
+                {{- end }}
+                <span class="friend-apply--contact-label">{{ .label }}</span>
+                {{- if .url }}
+                {{- /*
+                    长 URL（如 QQ 临时会话）写在 value 里，
+                    既可读又可直接点链接，外链加 target/rel 做安全防护。
+                */}}
+                <a class="friend-apply--contact-value" href="{{ .url }}"{{ if hasPrefix .url "http" }} target="_blank" rel="noopener noreferrer"{{ end }}>{{ .value }}</a>
+                {{- else }}
+                <span class="friend-apply--contact-value">{{ .value }}</span>
+                {{- end }}
+            </li>
+            {{- end }}
+        </ul>
+        {{- end }}
+
+        {{- with .requirements }}
+        <div class="friend-apply--requirements">
+            <p class="friend-apply--requirements-title">{{ T "friends.requirementsTitle" }}</p>
+            <ul class="friend-apply--requirements-list">
+                {{- range . }}
+                <li>{{ .text }}</li>
+                {{- end }}
+            </ul>
+        </div>
+        {{- end }}
+
+        {{- /*
+            可复制的"填表"模板。
+            用主题的 .article-content + .highlight + pre code 包裹，
+            让 code-copy.ts 自动接管（它查的就是 .article-content div.highlight 里的 code[data-lang]）。
+            不用 data-lang="text" 之外的 lang，避免 chroma 给纯文本上色、反而扰乱阅读。
+            tabindex="0" 和博客页代码块保持一致，键盘可聚焦。
+        */}}
+        {{- with .template }}
+        <div class="friend-apply--template">
+            {{- with .title }}
+            <p class="friend-apply--template-title">{{ . }}</p>
+            {{- end }}
+            {{- with .intro }}
+            <p class="friend-apply--template-intro">{{ . }}</p>
+            {{- end }}
+            <div class="article-content friend-apply--template-code">
+                <div class="highlight">
+                    <pre tabindex="0"><code data-lang="text">{{ .format }}</code></pre>
+                </div>
+            </div>
+        </div>
+        {{- end }}
+
+        {{- with .footer }}
+        <p class="friend-apply--footer">{{ . }}</p>
+        {{- end }}
+    </div>
+</section>
+{{- end }}
+
+{{- if not (eq .Params.comments false) }}
+{{ partial "comments/include" . }}
+{{- end }}
+
+{{ partialCached "footer/footer" . }}
+{{ end }}
+
+{{ define "right-sidebar" }}{{ end }}

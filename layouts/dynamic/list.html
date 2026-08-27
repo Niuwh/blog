@@ -1,15 +1,83 @@
+{{ define "body-class" }}article-page{{ end }}
+
 {{ define "main" }}
-<header class="page-header">
-    <h1>{{ .Title }}</h1>
-    {{ with .Description }}<p class="page-description">{{ . }}</p>{{ end }}
+{{- $pages := where .RegularPagesRecursive "Draft" "ne" true -}}
+
+<header class="section-card dynamic-header">
+    <div class="section-details">
+        <h3 class="section-count">{{ T "dynamic.count" (len $pages) }}</h3>
+        <h1 class="section-term">{{ .Title }}</h1>
+        {{ with .Description }}<h2 class="section-description">{{ . }}</h2>{{ end }}
+    </div>
+    <div class="dynamic-header--icon">{{ partial "helper/icon" "messages" }}</div>
 </header>
-{{ $pages := where .Pages "Draft" "ne" true }}
-{{ $paginator := .Paginate $pages }}
-<section class="article-list--compact">
-    {{ range $paginator.Pages }}
-    {{ partial "article-list/compact" . }}
-    {{ end }}
-</section>
-{{- partial "pagination.html" . -}}
+
+{{ with $pages }}
+    {{- $paginator := $.Paginate . -}}
+    <div class="dynamic-timeline">
+        {{- range $paginator.Pages.GroupByDate "2006" }}
+        <section class="dynamic-year">
+            <h2 class="dynamic-year--label"><span>{{ .Key }}</span></h2>
+
+            <ol class="dynamic-list">
+                {{- range .Pages }}
+                {{- /* 长文判定放在构建期，避免用 JS 量高度导致布局抖动。
+                       用 RuneCount 而不是 len：中文在 UTF-8 里占 3 字节，len 会算错。 */ -}}
+                {{- $long := gt (strings.RuneCount .Plain) 160 -}}
+                {{- $foldID := printf "dyn-fold-%s" .File.UniqueID -}}
+                <li class="dynamic-item{{ if $long }} dynamic-item--long{{ end }}">
+                    <div class="dynamic-node">
+                        <time class="dynamic-node--date" datetime="{{ .Date.Format "2006-01-02" }}">
+                            {{- .Date | time.Format "01-02" -}}
+                        </time>
+                    </div>
+
+                    <article class="dynamic-card">
+                        <h3 class="dynamic-card--title">
+                            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                        </h3>
+
+                        {{- if $long }}
+                        <input class="dynamic-fold" type="checkbox" id="{{ $foldID }}">
+                        {{- end }}
+
+                        {{- with .Content }}
+                        <div class="dynamic-card--content article-content">
+                            {{ . }}
+                        </div>
+                        {{- end }}
+                        {{- if $long }}
+                        <label class="dynamic-fold--btn" for="{{ $foldID }}">
+                            <span class="is-more">{{ T "dynamic.expand" }}</span>
+                            <span class="is-less">{{ T "dynamic.collapse" }}</span>
+                        </label>
+                        {{- end }}
+
+                        <footer class="dynamic-card--meta">
+                            <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+                                {{- .Date | time.Format "15:04" -}}
+                            </time>
+                            <a class="dynamic-card--more" href="{{ .RelPermalink }}">
+                                {{ T "dynamic.detail" }}{{ partial "helper/icon" "chevron-right" }}
+                            </a>
+                        </footer>
+                    </article>
+                </li>
+                {{- end }}
+            </ol>
+        </section>
+        {{- end }}
+    </div>
+
+    {{- partial "pagination.html" $ -}}
+{{ else }}
+    <div class="dynamic-empty">
+        {{ partial "helper/icon" "messages" }}
+        <p>{{ T "dynamic.empty" }}</p>
+    </div>
 {{ end }}
+
+{{ partialCached "footer/footer" . }}
+{{ end }}
+
 {{ define "right-sidebar" }}{{ end }}

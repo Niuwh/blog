@@ -5,3 +5,6 @@ resources/
 
 # 可执行Hugo
 hugo.exe
+
+# claude产物
+.claude

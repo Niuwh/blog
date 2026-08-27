@@ -40,6 +40,34 @@ darkMode   = "暗色模式"
     [widget.categoriesCloud]
         title = "分类"
 
+[dynamic]
+    title    = "动态"
+    count    = "{{ .Count }} 条动态"
+    more     = "更多"
+    detail   = "详情"
+    expand   = "展开全文"
+    collapse = "收起"
+    back     = "返回动态"
+    empty    = "还没有发布任何动态"
+
+[home]
+    heroTag      = "欢迎"
+    selfIntro    = "自述"
+    focus        = "方向"
+    social       = "社交"
+    sectionTag   = "最近更新"
+    latestDynamic = "最新动态"
+    latestBlog   = "最新博客"
+    viewAll      = "查看全部"
+
+[friends]
+    tag               = "社交"
+    visit             = "访问"
+    empty             = "还没有友链"
+    applyTag          = "申请"
+    applyTitle        = "申请友链"
+    requirementsTitle = "收录要求"
+
 [search]
     title       = "搜索"
     placeholder = "输入关键词..."
