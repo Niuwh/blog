@@ -1,0 +1,73 @@
+# Decap CMS 配置 · Niu Weihao Blog
+# 文档：https://decapcms.org/docs/configuration-options/
+
+# ===== 后端：GitHub =====
+# OAuth 走自己部署的 Cloudflare Worker，详见回复文档
+backend:
+  name: github
+  repo: Niuwh/blog
+  branch: main
+  base_url: https://decap-oauth.aliniuwh.workers.dev   # ← 部署 Worker 后替换
+  auth_endpoint: api/auth
+
+# ===== 媒体（图片 / 视频）跟 md 同级，Hugo Page Resources 自动识别 =====
+media_folder: ""
+public_folder: ""
+
+# ===== 发布模式（不需要审核流程就注释掉下一行） =====
+publish_mode: editorial_workflow
+
+# ===== 站点信息 =====
+site_url: https://blog.niuwh.cn
+display_url: https://blog.niuwh.cn
+logo_url: /favicon.ico
+locale: zh_CN
+
+# ===== 集合：动态（朋友圈/想法） =====
+collections:
+  - name: "dynamic"
+    label: "动态"
+    label_singular: "动态"
+    description: "短动态，配图配视频，跟朋友圈一样"
+    folder: "content/dynamic/2026"          # 落到 content/dynamic/2026/
+    create: true
+    delete: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"   # 自动 2026-08-29-xxx
+    extension: "md"
+    format: "toml-frontmatter"              # 跟现有 md 保持一致（+++）
+    frontmatter_delimiter: ["+++", "+++"]
+    media_folder: ""                        # 关键：图片/视频放在 md 同级
+    public_folder: ""
+    fields:
+      - name: "title"
+        label: "标题"
+        widget: "string"
+        hint: "一句话讲清楚这条在聊啥，留空会用日期"
+      - name: "date"
+        label: "发布时间"
+        widget: "datetime"
+        format: "YYYY-MM-DDTHH:mm:ssZ"
+        picker_format: "YYYY-MM-DD HH:mm:ss"
+      - name: "draft"
+        label: "草稿"
+        widget: "boolean"
+        default: false
+        required: false
+        hint: "勾上 → 不出现在公开列表"
+      - name: "description"
+        label: "简介"
+        widget: "string"
+        required: false
+        hint: "可留空，会自动生成"
+      - name: "keywords"
+        label: "关键词"
+        widget: "list"
+        required: false
+        field:
+          name: "keyword"
+          label: "关键词"
+          widget: "string"
+      - name: "body"
+        label: "正文"
+        widget: "markdown"
+        hint: "用 Markdown 写。点击工具栏的图片/视频按钮上传，会自动放在本目录。"
