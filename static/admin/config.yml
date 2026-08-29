@@ -33,6 +33,8 @@ collections:
     create: true
     delete: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"   # 自动 2026-08-29-xxx
+    # === 这一行是关键: 让 Decap 输出 Page Bundle 结构 (folder/index.md) ===
+    path: "{{year}}-{{month}}-{{day}}-{{slug}}/index"
     extension: "md"
     format: "toml-frontmatter"              # 跟现有 md 保持一致（+++）
     frontmatter_delimiter: ["+++", "+++"]
