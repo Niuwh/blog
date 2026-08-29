@@ -7,7 +7,7 @@ backend:
   name: github
   repo: Niuwh/blog
   branch: main
-  base_url: https://decap-oauth.aliniuwh.workers.dev   # ← 部署 Worker 后替换
+  base_url: https://blog.niuwh.cn   # ← 部署 Worker 后替换
   auth_endpoint: api/auth
 
 # ===== 媒体（图片 / 视频）跟 md 同级，Hugo Page Resources 自动识别 =====
