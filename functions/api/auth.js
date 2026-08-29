@@ -9,7 +9,7 @@ export async function onRequest(context) {
         return new Response(JSON.stringify({
             client_id_loaded: Boolean(CLIENT_ID),
             client_secret_loaded: Boolean(CLIENT_SECRET),
-            env_origin: url.origin,           // 关键：跟 Decap CMS 同源
+            env_origin: url.origin,
         }, null, 2), { headers: { 'Content-Type': 'text/plain' } });
     }
 
@@ -18,8 +18,9 @@ export async function onRequest(context) {
     }
 
     const code = url.searchParams.get('code');
+    const stateParam = url.searchParams.get('state') || 'netlify-cms';
 
-    // ===== Step 1: 没有 code → 跳 GitHub =====
+    // ===== Step 1: 没有 code → 跳 GitHub (透传 state) =====
     if (!code) {
         const redirectUri = url.origin + '/api/auth';
         return Response.redirect(
@@ -27,7 +28,7 @@ export async function onRequest(context) {
             '?client_id=' + encodeURIComponent(CLIENT_ID) +
             '&redirect_uri=' + encodeURIComponent(redirectUri) +
             '&scope=repo,user' +
-            '&state=netlify-cms',
+            '&state=' + encodeURIComponent(stateParam),
             302
         );
     }
@@ -68,31 +69,71 @@ export async function onRequest(context) {
     const token = data.access_token;
     const tokenJson = JSON.stringify(token);
 
-    // ===== Step 3: 同源 postMessage 回 Decap CMS =====
+    // ===== Step 3: 用 Decap CMS 3.x 真实协议 (字符串握手) =====
+    // 协议:
+    //   1. popup → opener:  postMessage('authorizing:github', '*')
+    //   2. Decap CMS → popup 回某个 ack
+    //   3. popup → opener:  postMessage('authorization:github:success:' + JSON.stringify(payload), message.origin || '*')
     return new Response(`<!DOCTYPE html><html><body style="background:#1f2229;color:#0f0;font-family:monospace;padding:20px;">
-  <h3>OAuth (Same-Origin) — token received</h3>
-  <script>
-  (function() {
-    var token = ${tokenJson};
-    var opener = window.opener;
-    function done() {
-      if (!opener) {
-        document.body.innerHTML += '<p style="color:red;">window.opener is null</p>';
-        return;
-      }
-      opener.postMessage({
-        type: 'authorization',
-        token: token,
-        provider: 'github'
-      }, '*');
-      document.body.innerHTML += '<p>Sent. Closing...</p>';
-      setTimeout(function() { window.close(); }, 200);
+<h3>OAuth (Decap 3.x string protocol)</h3>
+<pre id="log">starting...</pre>
+<script>
+(function() {
+  var token = ${tokenJson};
+  var opener = window.opener;
+  var log = document.getElementById('log');
+
+  function add(msg) {
+    log.textContent += '\\n' + msg;
+    console.log('[popup] ' + msg);
+  }
+
+  if (!opener) {
+    add('ERROR: window.opener is NULL');
+    return;
+  }
+  add('window.opener exists');
+
+  var acked = false;
+
+  function sendToken(targetOrigin) {
+    var payload = {
+      token: token,
+      provider: 'github'
+    };
+    add('-> sending authorization:github:success:' + payload.token.substring(0, 6) + '... (targetOrigin=' + targetOrigin + ')');
+    opener.postMessage(
+      'authorization:github:success:' + JSON.stringify(payload),
+      targetOrigin
+    );
+    add('Sent. Will close popup in 300ms.');
+    setTimeout(function() { window.close(); }, 300);
+  }
+
+  // 监听来自 opener (Decap CMS) 的消息
+  window.addEventListener('message', function(event) {
+    add('<- received from source=' + (event.source === opener ? 'opener' : 'other') + ' origin=' + event.origin + ' data=' + JSON.stringify(event.data));
+    // 只接受来自 Decap CMS 的回信
+    if (event.source !== opener) return;
+    acked = true;
+    // 用回信的 origin 作为 targetOrigin (更安全)
+    sendToken(event.origin);
+  });
+
+  // Step 1: 通知 Decap CMS 我们准备好了
+  add('-> sending authorizing:github');
+  opener.postMessage('authorizing:github', '*');
+
+  // Fallback: 2 秒后还没收到 opener 回信, 直接发 (兼容老版本 Decap CMS)
+  setTimeout(function() {
+    if (!acked) {
+      add('!! no ack from opener in 2s, sending authorization directly as fallback');
+      sendToken('*');
     }
-    // 立即发, 同源下没有 CSP / 跨域问题
-    done();
-  })();
-  </script>
-  </body></html>`, {
+  }, 2000);
+})();
+</script>
+</body></html>`, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
     });
 }
