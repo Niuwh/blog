@@ -15,7 +15,7 @@ media_folder: ""
 public_folder: ""
 
 # ===== 发布模式（不需要审核流程就注释掉下一行） =====
-publish_mode: editorial_workflow
+# publish_mode: editorial_workflow
 
 # ===== 站点信息 =====
 site_url: https://blog.niuwh.cn
@@ -34,7 +34,7 @@ collections:
     delete: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"   # 自动 2026-08-29-xxx
     # === 这一行是关键: 让 Decap 输出 Page Bundle 结构 (folder/index.md) ===
-    path: "{{year}}-{{month}}-{{day}}-{{slug}}/index"
+    path: "{{slug}}/index"
     extension: "md"
     format: "toml-frontmatter"              # 跟现有 md 保持一致（+++）
     frontmatter_delimiter: ["+++", "+++"]
