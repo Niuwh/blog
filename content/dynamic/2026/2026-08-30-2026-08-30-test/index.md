@@ -1,5 +1,5 @@
 +++
-title = "test"
+title = "博客更新，昨日感想"
 date = "2026-08-30T12:40:00+08:00"
 draft = false
 +++
