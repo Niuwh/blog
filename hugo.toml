@@ -49,7 +49,6 @@ paginate = 10                        # 首页/分类页每页显示文章数量
             { type = "tag-cloud", params = { limit = 10 } },
         ]
         page = [
-            { type = "dynamic", params = { limit = 5 } },
             { type = "toc" }
         ]
 
