@@ -9,19 +9,15 @@
 #
 # 用 weight 来控制顺序比"按字母"或"按添加时间"都更稳定——
 # 你随时可以把感兴趣的友站提到前面，不影响其它记录的位置。
-- name: Hugo Stack 主题
-  url: https://github.com/CaiJimmy/hugo-theme-stack
-  avatar: https://avatars.githubusercontent.com/u/84102221
-  description: 本博客正在使用的主题，作者是 Jimmy Cai。功能完整、UI 简洁，配色和卡片样式都偏静态化阅读体验。
+- name: heysifei
+  url: https://www.heysifei.com
+  avatar: https://www.heysifei.com/logo
+  description: 这是一个非常牛逼的博客
   weight: 1
 
-- name: Hugo 中文文档
-  url: https://www.gohugo.io/
-  avatar: https://www.gohugo.io/favicon-32x32.png
-  description: Hugo 官方网站与文档。本站的搭建基础，遇到问题时第一手参考来源。
-  weight: 2
-
-- name: Niuwh 笔记（占位）
-  url: /
-  description: 你自己的主页，互链示例。可改成真实交换友链的友站。
+- name: 牛伟豪的博客（占位）
+  url: https://blog.niuwh.cn
+  avatar: https://blog.niuwh.cn/favicon.ico
+  description: 我自己的主页，互链示例。
   weight: 99
+
