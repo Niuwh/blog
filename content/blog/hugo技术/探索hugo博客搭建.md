@@ -8,7 +8,7 @@ keywords = ["Hugo","教程"]
 linktitle = "探索hugo博客搭建"
 weight = "1"
 tags = ["Hugo","Stack","博客搭建"]
-categories = ["技术"]
+categories = ["hugo技术"]
 +++
 
 # 博客搭建基本教程
